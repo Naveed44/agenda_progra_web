@@ -36,3 +36,12 @@
     transform: rotate(360deg);
   }
 }
+
+.btnplus {
+  float: right;
+  margin-right: 2.5em;
+}
+
+.appbody {
+  padding-top: 3.5em;
+}
