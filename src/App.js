@@ -11,7 +11,7 @@ class App extends React.Component {
       super(props);
       this.state = {
         contactslist: [],
-        favcontacts: []
+        current_id: -1
       }
       this.modal_new = undefined;
       this.modal_two = undefined;//New modal
@@ -26,10 +26,10 @@ class App extends React.Component {
       this.inputTel2 = undefined;
 
       this.open_modal = this.open_modal.bind(this);
-      this.open_modal_two = this.open_modal_two.bind(this);//Part two
       this.clear_inputs = this.clear_inputs.bind(this);
       this.new_contact = this.new_contact.bind(this);
-      this.take_contact = this.take_contact(this);
+      this.display_contact = this.display_contact.bind(this);
+      this.delete_contact = this.delete_contact.bind(this);
   }
 
   getAvailableID(data){
@@ -41,14 +41,12 @@ class App extends React.Component {
     this.modal_new.open();
   }
 
-  open_modal_two(){
-    this.modal_two.open();
-    this.take_contact();
-  }
-
   clear_inputs(){
     this.txtName.value = "";
     this.txtTel.value = "";
+    this.txtName2.value = "";
+    this.txtTel2.value = "";
+    this.setState({current_id: -1});
   }
 
   new_contact(){
@@ -63,13 +61,24 @@ class App extends React.Component {
     this.clear_inputs();
   }
 
-  take_contact(contact){
+  display_contact(contact){
     const that = this;
-      return function() {
-        const index = that.state.contactslist.findIndex(item => item.id === contact.id);
-        console.info(index);
-        localStorage.setItem("contactID", contact.id);
-        }
+    console.log(contact);
+    return function(){
+      let index = that.state.contactslist.findIndex(item => item.id === contact.id);
+      that.txtName2.value = that.state.contactslist[index].name;
+      that.txtTel2.value = that.state.contactslist[index].phonenumber;
+      that.setState({current_id: contact.id});
+      that.modal_two.open();
+    }
+  }
+
+  delete_contact(){
+    console.log(this.state.current_id);
+    const that = this;
+    return function(){
+      that.clear_inputs();
+    }
   }
 
   render(){
@@ -86,7 +95,7 @@ class App extends React.Component {
           </div>
         </header>
         <div className="appbody">
-          <ul className="mdc-list mdc-list--two-line" onClick = {this.open_modal_two}>
+          <ul className="mdc-list mdc-list--two-line">
             {
               this.state.contactslist.length === 0 && (
                 <li className="mdc-list-item mdc-list-item--disabled">
@@ -96,9 +105,9 @@ class App extends React.Component {
               )
             }
             {
-              this.state.contactslist.map(contact => ([
-                <Contact onChange = {this.take_contact(contact)} key={contact.id} contactName={contact.name} phoneNumber={contact.phonenumber}></Contact>
-              ]))
+              this.state.contactslist.map(contact => (
+                <Contact onClick={this.display_contact(contact)} key={contact.id} contactName={contact.name} phoneNumber={contact.phonenumber}></Contact>
+              ))
               
             }
           </ul>
@@ -184,7 +193,7 @@ class App extends React.Component {
                   <span className="mdc-button__label">Save</span>
                 </button>
 
-                <button onClick={this.clear_inputs} type="button" className="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
+                <button onClick={this.delete_contact} type="button" className="mdc-button mdc-dialog__button" data-mdc-dialog-action="close">
                   <div className="mdc-button__ripple"></div>
                   <span className="mdc-button__label">Delete</span>
                 </button>
